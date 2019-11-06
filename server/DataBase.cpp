@@ -4,6 +4,8 @@
 #define status 0
 #define count 1
 
+#include <iostream>
+
 DataBase::DataBase() = default;
 DataBase::~DataBase() = default;
 
@@ -17,6 +19,7 @@ DataBase& DataBase::getInstance(){
 }
 
 Status DataBase::query(const std::string& mac){
+	std::cout<<"query("<<mac<<")"<<std::endl;
 	auto search = dbInfo_.find(mac);
 	if (search != dbInfo_.end()){
 		return std::get<status>(search->second);
@@ -25,10 +28,12 @@ Status DataBase::query(const std::string& mac){
 }
 
 void DataBase::saveClient(const std::string& mac){
+	std::cout<<"saveClient("<<mac<<")"<<std::endl;
 	dbInfo_.emplace(mac, std::make_pair(Status::Good, 0));
 }
 
 void DataBase::reboot(const std::string& mac){
+	std::cout<<"reboot("<<mac<<")"<<std::endl;
 	auto search = dbInfo_.find(mac);
 	if(search ==dbInfo_.end()){
 		assert(!"no corresponding mac...");
@@ -40,6 +45,7 @@ void DataBase::reboot(const std::string& mac){
 
 void DataBase::activate(const std::string& mac){
 	auto search = dbInfo_.find(mac);
+	std::cout<<"activate("<<mac<<")"<<std::endl;
 	if(search ==dbInfo_.end()){
 		assert(!"no corresponding mac...");
 	}

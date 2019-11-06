@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "epolls.h"
+#include "DataBase.h"
 #include <pthread.h>
 
 typedef struct _Sensor_Value{
@@ -15,17 +16,60 @@ typedef struct _Sensor_Value{
 }SensorValue;
 
 typedef struct Data_{
+	char mac_[18];
 	int count_;
 	SensorValue sensor_;
 }Data;
 
+typedef struct Reply_{
+	int ack_;
+	int needReboot_;
+}Reply;
+
 void tx_f(txData *tx){
     LoRa_ctl *modem = (LoRa_ctl *)(tx->userPtr);
     printf("tx done;\t");
-    printf("sent string: \"%s\"\n", tx->buf);//Data we've sent
+
+	Reply* reply =(Reply*) tx->buf;
+    printf("sent reply ack = %d, needReboot = %d\n\n", reply->ack_, reply->needReboot_);//Data we've sent
 
 	LoRa_receive(modem);
 //    LoRa_sleep(modem);
+}
+
+
+
+int errorCount = 0;
+void _processDBbyStatus(const std::string& mac){
+	DataBase& db = DataBase::getInstance();
+	Status status = db.query(mac);
+
+	if (status == Status::Newby){
+		std::cout<<"Newby..."<<std::endl;
+		db.saveClient(mac);
+	}
+	else if(status == Status::Bad){
+		db.activate(mac);
+	}
+	else{} //status == Status::Good
+}
+
+int _processReplybyValidity(bool validity, const std::string& mac){
+	if(validity == 0){
+		errorCount++;
+			
+		if (errorCount == 5){
+			DataBase& db = DataBase::getInstance();
+			db.reboot(mac);
+			return 1;
+		}
+	}
+
+	else{
+		errorCount = 0;
+	}
+
+	return 0;
 }
 
 void rx_f(rxData *rx){
@@ -33,28 +77,48 @@ void rx_f(rxData *rx){
     LoRa_stop_receive(modem);//manually stoping RxCont mode
     printf("rx done;\t");
     printf("CRC error: %d;\t", rx->CRC);
-    printf("Data size: %d;\t", rx->size);
 	Data data = *(Data*)(rx->buf);
-    //printf("received string: \"%s\";\t", rx->buf);//Data we've received
-    printf("Received count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n",
-	data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
-	printf("RSSI: %d;\t", rx->RSSI);
-    printf("SNR: %f\n\n", rx->SNR);
+    printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n",
+	data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+
+    //printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n\n",
+	Reply reply;
+	memset(&reply, 0, sizeof(Reply));
+
+	
+	//lora communication error... do nothing..
+	if (rx->CRC){
+		reply.ack_ = -1;
+	}
+
+	else {
+		reply.ack_ = data.count_;
+		
+		Data data = *(Data*)(rx->buf);
+		std::string mac{data.mac_};
+
+	    _processDBbyStatus(mac);
+		reply.needReboot_ = _processReplybyValidity(data.sensor_.validity_, mac);
+
+
+	}
+	
+//	Data data = *(Data*)(rx->buf);
+//    printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n",
+//	data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+
+
+
+	
+	
+	//printf("RSSI: %d;\t", rx->RSSI);
+    //printf("SNR: %f\n\n", rx->SNR);
    
-   memcpy(modem->tx.data.buf,&data.count_, sizeof(int));
-   modem->tx.data.size = sizeof(int);
-   /*
-    memcpy(modem->tx.data.buf, "Kong", 5);//copy data we'll sent to buffer
-    if( data.count_ == 15)
-		memcpy(modem->tx.data.buf,"Rebo", 5);
-	modem->tx.data.size = 5;//Payload len
-    */
+   memcpy(modem->tx.data.buf,&reply, sizeof(Reply));
+   modem->tx.data.size = sizeof(Reply);
 
 	LoRa_begin(modem);
     LoRa_send(modem);
-    //printf("Time on air data - Tsym: %f;\t", modem->tx.data.Tsym);
-    //printf("Tpkt: %f;\t", modem->tx.data.Tpkt);
-    //printf("payloadSymbNb: %u\n", modem->tx.data.payloadSymbNb);
 }
 
 
@@ -65,6 +129,8 @@ void * wifiThread(void* arg){
 }
 
 int main(){
+
+	DataBase::getInstance();
 
 	pthread_t thread_t;
 	if (pthread_create(&thread_t, NULL, wifiThread, NULL) <0){
@@ -89,8 +155,11 @@ int main(){
     modem.rx.data.userPtr = (void *)(&modem);//To handle with chip from rx callback
     modem.tx.data.userPtr = (void *)(&modem);//To handle with chip from tx callback
     modem.eth.preambleLen=6;
-    modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
+    ////original...
+	modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
     modem.eth.sf = SF12;//Spreading Factor 12
+    //modem.eth.bw = BW125;//Bandwidth 62.5KHz
+    //modem.eth.sf = SF9;//Spreading Factor 12
     modem.eth.ecr = CR8;//Error coding rate CR4/8
     modem.eth.CRC = 1;//Turn on CRC checking
     modem.eth.freq = 434800000;// 434.8MHz
@@ -108,8 +177,8 @@ int main(){
     LoRa_receive(&modem);
     
 	while( 1 ) {
-		printf("Dahyeon loves Jiyoung S2...\n");
-		sleep(2);
+	//	printf("Dahyeon loves Jiyoung S2...\n");
+		sleep(5);
 	}
     //while(LoRa_get_op_mode(&modem) != SLEEP_MODE){
     //    sleep(1);
