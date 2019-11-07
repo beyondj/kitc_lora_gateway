@@ -1,4 +1,4 @@
-#include "LoRa.h"
+#include <lora/lora.h>
 
 int LoRa_begin(LoRa_ctl *modem){
     if (gpioInitialise() < 0)

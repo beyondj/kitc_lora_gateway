@@ -1,25 +1,12 @@
 #include <iostream>
-
-
-#include "LoRa.h"
+#include <lora/lora.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "epolls.h"
-#include "DataBase.h"
+#include <epollwifi/epolls.h>
+#include <db/DataBase.h>
+#include <sensor/sensor.h>
 #include <pthread.h>
-
-typedef struct _Sensor_Value{
-	bool validity_;
-	float humin_;
-	float temper_;
-}SensorValue;
-
-typedef struct Data_{
-	char mac_[18];
-	int count_;
-	SensorValue sensor_;
-}Data;
 
 typedef struct Reply_{
 	int ack_;
@@ -156,10 +143,10 @@ int main(){
     modem.tx.data.userPtr = (void *)(&modem);//To handle with chip from tx callback
     modem.eth.preambleLen=6;
     ////original...
-	modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
-    modem.eth.sf = SF12;//Spreading Factor 12
-    //modem.eth.bw = BW125;//Bandwidth 62.5KHz
-    //modem.eth.sf = SF9;//Spreading Factor 12
+	//modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
+    //modem.eth.sf = SF12;//Spreading Factor 12
+    modem.eth.bw = BW125;//Bandwidth 62.5KHz
+    modem.eth.sf = SF9;//Spreading Factor 12
     modem.eth.ecr = CR8;//Error coding rate CR4/8
     modem.eth.CRC = 1;//Turn on CRC checking
     modem.eth.freq = 434800000;// 434.8MHz

@@ -1,0 +1,5 @@
+add_subdirectory(db)
+add_subdirectory(epollwifi)
+add_subdirectory(lora)
+add_subdirectory(sensor)
+add_subdirectory(mac)
