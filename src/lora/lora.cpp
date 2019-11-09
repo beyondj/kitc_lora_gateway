@@ -446,3 +446,49 @@ int lora_reg_write_bytes(int spid, unsigned char reg, char *buff, unsigned char 
 unsigned char LoRa_get_op_mode(LoRa_ctl *modem){
     return lora_get_op_mode(modem->spid);
 }
+
+void lora_initiate(LoRa_ctl& modem, 
+				   void(*rx_f)(rxData*), char* rxbuf,
+				   void(*tx_f)(txData*), char* txbuf,
+				   Bandwidth bandwidth){
+
+		modem.spiCS = 0;//Raspberry SPI CE pin number                                                        
+		modem.tx.callback = tx_f;                                                                            
+		modem.tx.data.buf = txbuf;                                                                           
+		modem.rx.callback = rx_f;                                                                            
+		modem.rx.data.buf = rxbuf;                                                                           
+		modem.rx.data.userPtr = (void *)(&modem);//To handle with chip from rx callback                      
+		modem.tx.data.userPtr = (void *)(&modem);//To handle with chip from tx callback                      
+		modem.eth.preambleLen=6;                                                                             
+		////original...                                                                                      
+		//modem.eth.bw = BW62_5;//Bandwidth 62.5KHz                                                          
+		//modem.eth.sf = SF12;//Spreading Factor 12                                                          
+		//modem.eth.bw = BW125;//Bandwidth 62.5KHz                                                             
+		//modem.eth.sf = SF9;//Spreading Factor 12                                                             
+		if (bandwidth == Bandwidth::best){
+			modem.eth.bw = BW250;
+			modem.eth.sf = SF7;
+		}
+		else if( bandwidth == Bandwidth::good){
+			modem.eth.bw = BW125;
+			modem.eth.sf = SF9;
+		}
+		else{
+			modem.eth.bw = BW62_5;
+			modem.eth.sf = SF12;
+		}
+
+	
+
+		modem.eth.ecr = CR8;//Error coding rate CR4/8                                                        
+		modem.eth.CRC = 1;//Turn on CRC checking                                                             
+		modem.eth.freq = 434800000;// 434.8MHz                                                               
+		modem.eth.resetGpioN = 4;//GPIO4 on lora RESET pin                                                   
+		modem.eth.dio0GpioN = 17;//GPIO17 on lora DIO0 pin to control Rxdone and Txdone interrupts           
+		modem.eth.outPower = OP20;//Output power                                                             
+		modem.eth.powerOutPin = PA_BOOST;//Power Amplifire pin                                               
+		modem.eth.AGC = 1;//Auto Gain Control                                                                
+		modem.eth.OCP = 240;// 45 to 240 mA. 0 to turn off protection                                        
+		modem.eth.implicitHeader = 0;//Explicit header mode                                                  
+		modem.eth.syncWord = 0x12; 
+}

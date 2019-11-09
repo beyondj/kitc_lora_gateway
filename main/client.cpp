@@ -63,6 +63,9 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
+
+/*
     //See for typedefs, enumerations and there values in LoRa.h header file
     modem.spiCS = 0;//Raspberry SPI CE pin number
     modem.tx.callback = tx_f;
@@ -94,7 +97,7 @@ int main(){
     modem.eth.syncWord = 0x12;
     //For detail information about SF, Error Coding Rate, Explicit header, Bandwidth, AGC, Over current protection and other features refer to sx127x datasheet https://www.semtech.com/uploads/documents/DS_SX1276-7-8-9_W_APP_V5.pdf
 
-
+*/
     LoRa_begin(&modem);
 	//pthread_t tid;
 	//pthread_create(&tid, NULL, test , &modem);

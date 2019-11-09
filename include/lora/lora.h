@@ -246,3 +246,18 @@ void lora_set_lna(int spid, LnaGain lnaGain, _Bool lnaBoost);
 void lora_set_ocp(int spid, unsigned char OCP);
 void lora_set_implicit_header(int spid);
 void lora_set_explicit_header(int spid);
+
+
+
+
+//Defined Initialization function
+enum class Bandwidth{
+	normal,
+	good,
+	best
+};
+
+void lora_initiate(LoRa_ctl& modem,
+				   void(*rx_f)(rxData*), char* rxbuf,
+				   void(*tx_f)(txData*), char* txbuf,
+				   Bandwidth bandwidth);
