@@ -98,7 +98,7 @@ void rx_f(rxData *rx){
 
 	
 	
-	//printf("RSSI: %d;\t", rx->RSSI);
+	printf("RSSI: %d;\t", rx->RSSI);
     //printf("SNR: %f\n\n", rx->SNR);
    
    memcpy(modem->tx.data.buf,&reply, sizeof(Reply));
@@ -133,7 +133,7 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::good);
+	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::best);
 /*
     //See for typedefs, enumerations and there values in LoRa.h header file
     modem.spiCS = 0;//Raspberry SPI CE pin number
