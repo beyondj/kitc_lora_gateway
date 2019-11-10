@@ -63,7 +63,7 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::best);
 
 /*
     //See for typedefs, enumerations and there values in LoRa.h header file
