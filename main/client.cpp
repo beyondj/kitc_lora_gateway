@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include <mac/mac.h>
 
+typedef struct Reply_{
+	int ack_;
+	int needReboot_;
+}Reply;
+
 int count = 0;
 void tx_f(txData *tx){
     LoRa_ctl *modem = (LoRa_ctl *)(tx->userPtr);
@@ -31,20 +36,17 @@ void rx_f(rxData *rx){
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
     LoRa_stop_receive(modem);//manually stoping RxCont mode
     printf("rx done;\t");
+	
+	Reply reply = *(Reply*)(rx->buf);
 
-	printf("received ack:%d\n",*(int*)rx->buf);
-   /*// printf("CRC error: %d;\t", rx->CRC);
-   // printf("Data size: %d;\t", rx->size);
-    printf("received string: \"%s\";\t", rx->buf);//Data we've received
-    if( strcmp(rx->buf,"Rebo") == 0){
-		printf("REBOOT!!!\n");
+	printf("received ack:%d  need reboot:%d", reply.ack_, reply.needReboot_);
+	
+	int CRCError = rx->CRC;
+	if ( CRCError==0 && reply.needReboot_){
+		//printf("RRRRRRRRRRRRRRRRRREEEEEEEEEEEEEBOOOOOOOOOOOOOOOOOOOOOOTTTTTTTTTT!!!!!\n\n");
 		system("sudo reboot");
-	}
-	printf("RSSI: %d;\t", rx->RSSI);
-    printf("SNR: %f\n", rx->SNR);
-   */
-//    LoRa_receive(modem);
-//    LoRa_sleep(modem);
+	} 
+
 }
 
 
@@ -63,41 +65,8 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::best);
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
 
-/*
-    //See for typedefs, enumerations and there values in LoRa.h header file
-    modem.spiCS = 0;//Raspberry SPI CE pin number
-    modem.tx.callback = tx_f;
-    modem.tx.data.buf = txbuf;
-    modem.rx.callback = rx_f;
-    modem.rx.data.buf = rxbuf;
-    modem.rx.data.userPtr = (void *)(&modem);//To handle with chip from rx callback
-    modem.tx.data.userPtr = (void *)(&modem);//To handle with chip from tx callback
-    //memcpy(modem.tx.data.buf, "Ping", 5);//copy data we'll sent to buffer
-    memcpy(modem.tx.data.buf, &data, sizeof(Data));
-	modem.tx.data.size = sizeof(Data);
-
-	//modem.tx.data.size = 5;//Payload len
-    modem.eth.preambleLen=6;
-    //modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
-    //modem.eth.sf = SF12;//Spreading Factor 12
-    modem.eth.bw = BW125;//Bandwidth 62.5KHz
-    modem.eth.sf = SF9;//Spreading Factor 12
-    modem.eth.ecr = CR8;//Error coding rate CR4/8
-    modem.eth.CRC = 1;//Turn on CRC checking
-    modem.eth.freq = 434800000;// 434.8MHz
-    modem.eth.resetGpioN = 4;//GPIO4 on lora RESET pin
-    modem.eth.dio0GpioN = 17;//GPIO17 on lora DIO0 pin to control Rxdone and Txdone interrupts
-    modem.eth.outPower = OP20;//Output power
-    modem.eth.powerOutPin = PA_BOOST;//Power Amplifire pin
-    modem.eth.AGC = 1;//Auto Gain Control
-    modem.eth.OCP = 240;// 45 to 240 mA. 0 to turn off protection
-    modem.eth.implicitHeader = 0;//Explicit header mode
-    modem.eth.syncWord = 0x12;
-    //For detail information about SF, Error Coding Rate, Explicit header, Bandwidth, AGC, Over current protection and other features refer to sx127x datasheet https://www.semtech.com/uploads/documents/DS_SX1276-7-8-9_W_APP_V5.pdf
-
-*/
     LoRa_begin(&modem);
 	//pthread_t tid;
 	//pthread_create(&tid, NULL, test , &modem);
@@ -112,7 +81,8 @@ int main(){
 		data.count_++;
 		data.sensor_ = getSensorValue();
 		memcpy(modem.tx.data.buf, &data, sizeof(Data));
-		
+		modem.tx.data.size = sizeof(Data);	
+
 		Data testD = *((Data*)(modem.tx.data.buf));
 		printf("Sending data...\n");
 		printf("mac=%s count=%d validity=%d  humidity:%.1f  temper:%.1f!!\n",
