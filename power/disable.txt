@@ -1,2 +1,3 @@
+arm_freq=700
 dtparam=audio=off
 dtoverlay=pi3-disable-bt
