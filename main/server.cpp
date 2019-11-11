@@ -45,7 +45,7 @@ int _processReplybyValidity(bool validity, const std::string& mac){
 	if(validity == 0){
 		errorCount++;
 			
-		if (errorCount == 5){
+		if (errorCount > 5){
 			DataBase& db = DataBase::getInstance();
 			db.reboot(mac);
 			return 1;
@@ -90,11 +90,6 @@ void rx_f(rxData *rx){
 
 	}
 	
-//	Data data = *(Data*)(rx->buf);
-//    printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n",
-//	data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
-
-
 
 	
 	
@@ -133,41 +128,14 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::best);
-/*
-    //See for typedefs, enumerations and there values in LoRa.h header file
-    modem.spiCS = 0;//Raspberry SPI CE pin number
-    modem.tx.callback = tx_f;
-    modem.tx.data.buf = txbuf;
-    modem.rx.callback = rx_f;
-    modem.rx.data.buf = rxbuf;
-    modem.rx.data.userPtr = (void *)(&modem);//To handle with chip from rx callback
-    modem.tx.data.userPtr = (void *)(&modem);//To handle with chip from tx callback
-    modem.eth.preambleLen=6;
-    ////original...
-	//modem.eth.bw = BW62_5;//Bandwidth 62.5KHz
-    //modem.eth.sf = SF12;//Spreading Factor 12
-    modem.eth.bw = BW125;//Bandwidth 62.5KHz
-    modem.eth.sf = SF9;//Spreading Factor 12
-    modem.eth.ecr = CR8;//Error coding rate CR4/8
-    modem.eth.CRC = 1;//Turn on CRC checking
-    modem.eth.freq = 434800000;// 434.8MHz
-    modem.eth.resetGpioN = 4;//GPIO4 on lora RESET pin
-    modem.eth.dio0GpioN = 17;//GPIO17 on lora DIO0 pin to control Rxdone and Txdone interrupts
-    modem.eth.outPower = OP20;//Output power
-    modem.eth.powerOutPin = PA_BOOST;//Power Amplifire pin
-    modem.eth.AGC = 1;//Auto Gain Control
-    modem.eth.OCP = 240;// 45 to 240 mA. 0 to turn off protection
-    modem.eth.implicitHeader = 0;//Explicit header mode
-    modem.eth.syncWord = 0x12;*/
-    //For detail information about SF, Error Coding Rate, Explicit header, Bandwidth, AGC, Over current protection and other features refer to sx127x datasheet https://www.semtech.com/uploads/documents/DS_SX1276-7-8-9_W_APP_V5.pdf
+	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::good);
 
     LoRa_begin(&modem);
     LoRa_receive(&modem);
     
 	while( 1 ) {
 	//	printf("Dahyeon loves Jiyoung S2...\n");
-		sleep(5);
+		sleep(7200);
 	}
     //while(LoRa_get_op_mode(&modem) != SLEEP_MODE){
     //    sleep(1);
