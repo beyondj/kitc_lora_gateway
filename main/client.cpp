@@ -67,11 +67,11 @@ int main(){
 
 	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
 
-    LoRa_begin(&modem);
-	//pthread_t tid;
-	//pthread_create(&tid, NULL, test , &modem);
-	//pthread_detach(tid);
 	sleep(1);
+	data.sensor_ = getSensorValue();
+	memcpy(modem.tx.data.buf, &data, sizeof(Data));
+	modem.tx.data.size = sizeof(Data);	
+    LoRa_begin(&modem);
 	LoRa_send(&modem);
   
 //	LoRa_send(&modem);
