@@ -32,10 +32,11 @@ void _processDBbyStatus(const std::string& mac){
 	Status status = db.query(mac);
 
 	if (status == Status::Newby){
-		std::cout<<"Newby..."<<std::endl;
+		std::cout<<"New sensor is detected. Insert sensor information in DB"<<std::endl;
 		db.saveClient(mac);
 	}
 	else if(status == Status::Bad){
+		std::cout<<"Abnormally behaviored sensor is rebooted"<<std::endl;
 		db.activate(mac);
 	}
 	else{} //status == Status::Good
@@ -62,13 +63,8 @@ int _processReplybyValidity(bool validity, const std::string& mac){
 void rx_f(rxData *rx){
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
     LoRa_stop_receive(modem);//manually stoping RxCont mode
-    printf("rx done;\t");
-    printf("CRC error: %d;\t", rx->CRC);
 	Data data = *(Data*)(rx->buf);
-    printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n",
-	data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
 
-    //printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f!!!!!!!!!!!\n\n",
 	Reply reply;
 	memset(&reply, 0, sizeof(Reply));
 
@@ -87,6 +83,8 @@ void rx_f(rxData *rx){
 	    _processDBbyStatus(mac);
 		reply.needReboot_ = _processReplybyValidity(data.sensor_.validity_, mac);
 
+    	printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f\n",
+		data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
 
 	}
 	

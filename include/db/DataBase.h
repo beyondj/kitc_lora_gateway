@@ -26,6 +26,7 @@ public:
 	void reboot(const std::string&);
 	int rebootCount(const std::string&);
 	void activate(const std::string&);
+	void showDataBaseStatus();
 };
 
 
