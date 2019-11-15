@@ -204,7 +204,9 @@ void rxDoneISRf(int gpio_n, int level, uint32_t tick, void *modemptr){
         lora_get_snr(modem);
         lora_reset_irq_flags(modem->spid);
         pthread_create(&(modem->rx.cbThread), NULL, startRxCallback, (void *)(modem));
-    }
+    	//my addition
+		pthread_detach(modem->rx.cbThread);
+	}
 }
 
 void * startRxCallback(void *arg){
@@ -220,7 +222,8 @@ void txDoneISRf(int gpio_n, int level, uint32_t tick, void *modemptr){
         lora_reset_irq_flags(modem->spid);
         lora_set_satandby_mode(modem->spid);
         pthread_create(&(modem->tx.cbThread), NULL, startTxCallback, (void *)(modem));
-    }
+    	pthread_detach(modem->tx.cbThread);
+	}
 }
 
 void * startTxCallback(void *arg){

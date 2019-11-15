@@ -68,7 +68,8 @@ void rx_f(rxData *rx){
 	Reply reply;
 	memset(&reply, 0, sizeof(Reply));
 
-	
+
+	//LoRa_end(modem);
 	//lora communication error... do nothing..
 	if (rx->CRC){
 		reply.ack_ = -1;
@@ -76,7 +77,8 @@ void rx_f(rxData *rx){
 
 	else {
 		reply.ack_ = data.count_;
-		
+	
+
 		Data data = *(Data*)(rx->buf);
 		std::string mac{data.mac_};
 
@@ -91,12 +93,13 @@ void rx_f(rxData *rx){
 
 	
 	
-	printf("RSSI: %d;\t", rx->RSSI);
+	printf("RSSI: %d\n", rx->RSSI);
     //printf("SNR: %f\n\n", rx->SNR);
    
    memcpy(modem->tx.data.buf,&reply, sizeof(Reply));
    modem->tx.data.size = sizeof(Reply);
 
+	LoRa_end(modem);
 	LoRa_begin(modem);
     LoRa_send(modem);
 }
@@ -141,5 +144,7 @@ int main(){
 
     printf("end\n");
 
-    LoRa_end(&modem);
+    //LoRa_end(&modem);
+
+	return 0;
 }
