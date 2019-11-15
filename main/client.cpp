@@ -34,19 +34,18 @@ void rx_f(rxData *rx){
 	printf("@@@@@@@@@@@@@@RECEIVE######\n");
 
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
-    LoRa_stop_receive(modem);//manually stoping RxCont mode
+    //LoRa_stop_receive(modem);//manually stoping RxCont mode
     printf("rx done;\t");
 	
 	Reply reply = *(Reply*)(rx->buf);
 
-	printf("received ack:%d  need reboot:%d", reply.ack_, reply.needReboot_);
+	printf("received ack:%d  need reboot:%d\n", reply.ack_, reply.needReboot_);
 	
 	int CRCError = rx->CRC;
 	if ( CRCError==0 && reply.needReboot_){
-		//printf("RRRRRRRRRRRRRRRRRREEEEEEEEEEEEEBOOOOOOOOOOOOOOOOOOOOOOTTTTTTTTTT!!!!!\n\n");
-		system("sudo reboot");
+		printf("RRRRRRRRRRRRRRRRRREEEEEEEEEEEEEBOOOOOOOOOOOOOOOOOOOOOOTTTTTTTTTT!!!!!\n\n");
+		//system("sudo reboot");
 	} 
-
 }
 
 
@@ -71,12 +70,12 @@ int main(){
 	data.sensor_ = getSensorValue();
 	memcpy(modem.tx.data.buf, &data, sizeof(Data));
 	modem.tx.data.size = sizeof(Data);	
-    LoRa_begin(&modem);
+	LoRa_begin(&modem);
 	LoRa_send(&modem);
   
 //	LoRa_send(&modem);
 	while(1){
-	    sleep(8);
+	    sleep(5);
 //	    LoRa_receive(&modem);
 		data.count_++;
 		data.sensor_ = getSensorValue();
@@ -88,6 +87,7 @@ int main(){
 		printf("mac=%s count=%d validity=%d  humidity:%.1f  temper:%.1f!!\n",
 				testD.mac_,testD.count_, testD.sensor_.validity_, testD.sensor_.humin_, testD.sensor_.temper_);
 
+		LoRa_end(&modem);
 		LoRa_begin(&modem);
 		LoRa_send(&modem);
 		//LoRa_receive(&modem);	
