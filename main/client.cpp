@@ -13,39 +13,44 @@ typedef struct Reply_{
 int count = 0;
 void tx_f(txData *tx){
     LoRa_ctl *modem = (LoRa_ctl *)(tx->userPtr);
-    printf("tx done#########;\t");
+    //printf("tx done#########;\t");
     //printf("sent string: \"%s\"\n\n", tx->buf);//Data we've sent
     Data data = *(Data*)(tx->buf);
-	printf("send string: %d\n", data.count_);
+	//printf("Data sequence number: %d\n", data.count_);
 
 	//printf("sent string: \"%d\"\n\n", atoi(tx->buf));//Data we've sent
    
 	
 
     //LoRa_receive(modem);
-	printf("BEFORE LORA_RECEIVE!!\n");
+	//printf("BEFORE LORA_RECEIVE!!\n");
 	LoRa_receive(modem);
-	printf("AFTER LORA_RECEIVE!!\n");
+	//printf("AFTER LORA_RECEIVE!!\n");
 }
 
 
 
 void rx_f(rxData *rx){
-	printf("@@@@@@@@@@@@@@RECEIVE######\n");
+	//printf("@@@@@@@@@@@@@@RECEIVE######\n");
 
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
     //LoRa_stop_receive(modem);//manually stoping RxCont mode
-    printf("rx done;\t");
-	
-	Reply reply = *(Reply*)(rx->buf);
-
-	printf("received ack:%d  need reboot:%d\n", reply.ack_, reply.needReboot_);
-	
 	int CRCError = rx->CRC;
-	if ( CRCError==0 && reply.needReboot_){
-		printf("RRRRRRRRRRRRRRRRRREEEEEEEEEEEEEBOOOOOOOOOOOOOOOOOOOOOOTTTTTTTTTT!!!!!\n\n");
-		//system("sudo reboot");
-	} 
+    if (CRCError){
+		printf("[ERROR_CRC_BAD_NETWORK_COND] Ignore invalid data\n");	
+	}
+	else{
+		printf("Reply from server \t");
+
+		Reply reply = *(Reply*)(rx->buf);
+
+		printf("Received ack: %d  needReboot: %d\n\n", reply.ack_, reply.needReboot_);
+
+		if ( reply.needReboot_){
+				printf("Reboot reqested..\n\n");
+					//system("sudo reboot");
+		} 
+	}
 }
 
 
@@ -64,12 +69,16 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::best);
 
 	sleep(1);
 	data.sensor_ = getSensorValue();
 	memcpy(modem.tx.data.buf, &data, sizeof(Data));
 	modem.tx.data.size = sizeof(Data);	
+	printf("[%s]\tSending seq: %d \nValidity: %d  Humidity: %.1f  Temperature: %.1f\n",
+				data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+
+
 	LoRa_begin(&modem);
 	LoRa_send(&modem);
   
@@ -83,8 +92,8 @@ int main(){
 		modem.tx.data.size = sizeof(Data);	
 
 		Data testD = *((Data*)(modem.tx.data.buf));
-		printf("Sending data...\n");
-		printf("mac=%s count=%d validity=%d  humidity:%.1f  temper:%.1f!!\n",
+		//printf("Sending data...\n");
+		printf("[%s]\tSending seq: %d\nValidity: %d  Humidity: %.1f  Temperature: %.1f\n",
 				testD.mac_,testD.count_, testD.sensor_.validity_, testD.sensor_.humin_, testD.sensor_.temper_);
 
 		LoRa_end(&modem);

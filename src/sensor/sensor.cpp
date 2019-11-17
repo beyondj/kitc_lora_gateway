@@ -80,13 +80,14 @@ SensorValue getSensorValue(){
 			ret.humin_ = h;
 			ret.temper_ = c;
 
-			printf(" Humidity = %.1f %% Temperature = %.1f *C (%.1f *F)\n", h, c, f);   
+			//printf("Humidity = %.1f %% Temperature = %.1f *C /(%.1f *F)\n", h, c, f);   
+			//printf("[Sensor Data] Humidity = %.1f %% Temperature = %.1f *C \n", h, c);   
 	}                                                                               
 	else{   
 			ret.validity_ = false;
 			ret.humin_ = 0.0;
 			ret. temper_ = 0.0;
-			printf("data not good, skip \n");                                           
+			//printf("[Sensor Data] Invalid. Humidity = 0.0 Temperature = 0.0 \n");                                           
 		}
 
 	return ret;
