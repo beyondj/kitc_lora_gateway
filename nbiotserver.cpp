@@ -51,6 +51,9 @@ int   main( void)
 		server_addr.sin_port       = htons(3200);
 		server_addr.sin_addr.s_addr= htonl( INADDR_ANY);
 
+		int opt = 1;
+		setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
 		if( -1 == bind( server_socket, (struct sockaddr*)&server_addr, sizeof( server_addr) ) )
 		{
 				printf( "bind() 실행 에러\n");

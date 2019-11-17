@@ -17,10 +17,11 @@ typedef struct Reply_{
 
 void tx_f(txData *tx){
     LoRa_ctl *modem = (LoRa_ctl *)(tx->userPtr);
-    printf("tx done;\t");
+    //printf("tx done;\t");
 
 	Reply* reply =(Reply*) tx->buf;
-    printf("sent reply ack = %d, needReboot = %d\n\n", reply->ack_, reply->needReboot_);//Data we've sent
+	printf("Sending ack: %d  needReboot: %d\n\n", reply->ack_, reply->needReboot_);
+   // printf("sent reply ack = %d, needReboot = %d\n\n", reply->ack_, reply->needReboot_);//Data we've sent
 
 	LoRa_receive(modem);
 //    LoRa_sleep(modem);
@@ -74,6 +75,7 @@ void rx_f(rxData *rx){
 	//LoRa_end(modem);
 	//lora communication error... do nothing..
 	if (rx->CRC){
+		printf("[ERROR_CRC_BAD_NETWORK_COND)] Ignore invalid data & ack may not reach properly\n");
 		reply.ack_ = -1;
 	}
 
@@ -89,7 +91,7 @@ void rx_f(rxData *rx){
 	    _processDBbyStatus(mac);
 		reply.needReboot_ = _processReplybyValidity(data.sensor_.validity_, mac);
 
-    	printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f\n",
+		printf("[%s]\tReceived seq: %d\nValidity : %d  Huminity: %.1f  Temperature: %.1f\n",
 		data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
 
 	}
@@ -141,7 +143,7 @@ int main(){
 	sleep(1);
 
 
-	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::good);
+	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::best);
 
     LoRa_begin(&modem);
     LoRa_receive(&modem);
