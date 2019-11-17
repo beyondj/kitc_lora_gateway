@@ -13,6 +13,7 @@ enum class Status{
 class DataBase{
 private:
 	std::map<std::string, std::pair<Status, int>> dbInfo_;
+	std::map<std::string, int> macVCount_;
 	static DataBase* instance_;
 	// no public CTOR
 	DataBase();
@@ -27,6 +28,9 @@ public:
 	int rebootCount(const std::string&);
 	void activate(const std::string&);
 	void showDataBaseStatus();
+	void increaseErrorCount(const std::string&);
+	void resetErrorCount(const std::string&);
+	int getErrorCount(const std::string&);
 };
 
 

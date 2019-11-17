@@ -35,6 +35,7 @@ Status DataBase::query(const std::string& mac){
 void DataBase::saveClient(const std::string& mac){
 	std::cout<<"Sensor mac address: "<<mac<<", status: Good"<<std::endl<<std::endl;
 	dbInfo_.emplace(mac, std::make_pair(Status::Good, 0));
+	macVCount_.emplace(mac, 0);
 	showDataBaseStatus();
 }
 
@@ -50,6 +51,7 @@ void DataBase::reboot(const std::string& mac){
 	else{
 		std::get<status>(search->second) = Status::Bad;
 		std::get<count>(search->second)++;
+		showDataBaseStatus();
 	}
 }
 
@@ -63,6 +65,7 @@ void DataBase::activate(const std::string& mac){
 	else{
 		std::get<status>(search->second) = Status::Good;
 	}
+	showDataBaseStatus();
 }
 
 int DataBase::rebootCount(const std::string& mac){
@@ -93,5 +96,16 @@ void DataBase::showDataBaseStatus(){
 	std::cout<<"--------------------------------------"<<std::endl;
 	} 
 
-
+	std::cout<<std::endl;
 }
+void DataBase::increaseErrorCount(const std::string& mac){
+	macVCount_.at(mac)++;
+}
+
+void DataBase::resetErrorCount(const std::string& mac){
+	macVCount_.at(mac) = 0;
+}
+int DataBase::getErrorCount(const std::string& mac){
+	return macVCount_.at(mac);
+}
+
