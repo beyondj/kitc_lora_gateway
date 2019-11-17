@@ -9,3 +9,7 @@ add_dependencies(client_run dbapi loraapi)
 add_executable(nbiot_server_run server_with_nb-iot.cpp)
 target_link_libraries(nbiot_server_run dbapi loraapi epollwifiapi nbiotapi pipeapi)
 add_dependencies(server_run dbapi loraapi)
+
+add_executable(mimicErrorclient_run mimicclientWithError.cpp)
+target_link_libraries(mimicErrorclient_run  loraapi macapi sensorapi)
+add_dependencies(mimicErrorclient_run dbapi loraapi)
