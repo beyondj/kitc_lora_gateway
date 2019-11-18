@@ -128,27 +128,17 @@ int main(){
 
 	DataBase::getInstance();
 
-	pthread_t thread_t;
-	if (pthread_create(&thread_t, NULL, wifiThread, NULL) <0){
-		perror("thread create error:");
-		exit(0);
-	}
-	pthread_detach(thread_t);
-
-	sleep(1);
-
 
     char txbuf[255];
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::best);
+	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::good);
 
     LoRa_begin(&modem);
     LoRa_receive(&modem);
     
 	while( 1 ) {
-	//	printf("Dahyeon loves Jiyoung S2...\n");
 		sleep(7200);
 	}
     //while(LoRa_get_op_mode(&modem) != SLEEP_MODE){

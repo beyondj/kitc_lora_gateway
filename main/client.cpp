@@ -69,7 +69,7 @@ int main(){
     char rxbuf[255];
     LoRa_ctl modem;
 
-	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::best);
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
 
 	sleep(1);
 	data.sensor_ = getSensorValue();
