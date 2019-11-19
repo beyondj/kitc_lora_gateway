@@ -1,15 +1,27 @@
 #include <db/DataBase.h>
 #include <cassert>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <unistd.h>
+#include <string.h>
 
 #define status 0
 #define count 1
 
-#include <iostream>
 
-DataBase::DataBase() = default;
+DataBase::DataBase() 
+{
+	logfd_ = open("../../server.log",O_RDWR | O_APPEND | O_CREAT, S_IRUSR| S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH| S_IWOTH);
+}
+
 
 DataBase::~DataBase() {
 		std::cout<<"DTOR..."<<std::endl;
+		close(logfd_);
 }
 
 
@@ -34,6 +46,7 @@ Status DataBase::query(const std::string& mac){
 
 void DataBase::saveClient(const std::string& mac){
 	std::cout<<"Sensor mac address: "<<mac<<", status: Good"<<std::endl<<std::endl;
+	
 	dbInfo_.emplace(mac, std::make_pair(Status::Good, 0));
 	macVCount_.emplace(mac, 0);
 	showDataBaseStatus();
@@ -43,6 +56,7 @@ void DataBase::reboot(const std::string& mac){
 	std::cout<<"Abnormal sensor behavior detected. Requesst sensor to recover."<<std::endl;
 	std::cout<<"Update DB information about the sensor"<<std::endl;
 	std::cout<<"Sensor mac address: "<<mac<<" status: Bad"<<std::endl<<std::endl;
+	
 	auto search = dbInfo_.find(mac);
 	if(search ==dbInfo_.end()){
 	//	assert(!"no corresponding mac...");
@@ -87,14 +101,47 @@ std::string stringDic(Status enumclass){
 }
 
 void DataBase::showDataBaseStatus(){
-	std::cout<<"--------------------------------------"<<std::endl;
-	std::cout<<"| mac               | status | r cnt |"<<std::endl;
-	std::cout<<"--------------------------------------"<<std::endl;
+//	system("echo \"--------------------------------------\" >> ../../server.log");
+//	system("echo \"| mac               | status | r cnt |\" >> ../../server.log");
+//	system("echo \"--------------------------------------\" >> ../../server.log");
+
+	
+	std::string logstart =  std::string{"--------------------------------------"}+
+							std::string{"\n| mac               | status | r cnt |"}+
+							std::string{"\n--------------------------------------\n"};
+
+	std::cout<<logstart;
+	int length = logstart.length();
+	char buf[1024];
+	memset(buf, 0, sizeof(char)*1024);
+
+	memcpy(buf, logstart.c_str(), sizeof(char)*length+1);
+
+	write(logfd_, buf, sizeof(char)*length+1);
+
+//	std::cout<<"--------------------------------------"<<std::endl;
+//	std::cout<<"| mac               | status | r cnt |"<<std::endl;
+//	std::cout<<"--------------------------------------"<<std::endl;
+
+	
+
+
 	for ( auto &item : dbInfo_){
 	std::cout<<"| "<<item.first<<" | "<<stringDic(std::get<status>(item.second))<<" |     "
 	<<std::get<count>(item.second)<<" | "<<std::endl;
 	std::cout<<"--------------------------------------"<<std::endl;
+		
+		std::string line = "| "+item.first+" | "+stringDic(std::get<status>(item.second))+
+	" |     "+std::to_string(std::get<count>(item.second))+" | \n--------------------------------------\n";
+
+	
+		int line_length = line.length();
+		memcpy(buf, line.c_str(), sizeof(char)* line_length+1);
+
+		write(logfd_, buf, sizeof(char)*line_length+1);
 	} 
+
+
 
 	std::cout<<std::endl;
 }

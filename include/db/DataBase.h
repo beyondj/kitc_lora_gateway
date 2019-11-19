@@ -17,6 +17,8 @@ private:
 	static DataBase* instance_;
 	// no public CTOR
 	DataBase();
+
+	int logfd_;
 public:
 	virtual ~DataBase();
 
