@@ -83,7 +83,7 @@ int main(){
     char rxbuf[255]{};
     LoRa_ctl modem;
 
-	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::best);
+	lora_initiate(modem, rx_f, rxbuf, tx_f, txbuf, Bandwidth::good);
 
 	sleep(1);
 //	data.sensor_ = getSensorValue();
@@ -111,7 +111,7 @@ int main(){
 //				errData.mac_,errData.count_, errData.sensor_.validity_, errData.sensor_.humin_, errData.sensor_.temper_);
 		LoRa_begin(&modem);
 		LoRa_send(&modem);
-		sleep(5);
+		sleep(8);
 		LoRa_end(&modem);
 	}
 
