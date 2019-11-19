@@ -4,11 +4,27 @@
 #include <sensor/sensor.h>
 #include <unistd.h>
 #include <mac/mac.h>
+#include <sys/time.h>
+#include <iostream>
 
 typedef struct Reply_{
 	int ack_;
 	int needReboot_;
 }Reply;
+
+
+long long current_timestamp() {
+	struct timeval te;
+		
+	gettimeofday(&te, NULL); // get current time
+	long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // calculate milliseconds
+	return milliseconds;
+}
+
+
+long long txts = 0;
+long long rxts = 0;
+
 
 int count = 0;
 void tx_f(txData *tx){
@@ -20,7 +36,7 @@ void tx_f(txData *tx){
 
 	//printf("sent string: \"%d\"\n\n", atoi(tx->buf));//Data we've sent
    
-	
+	txts = current_timestamp();	
 
     //LoRa_receive(modem);
 	//printf("BEFORE LORA_RECEIVE!!\n");
@@ -34,6 +50,9 @@ void rx_f(rxData *rx){
 	//printf("@@@@@@@@@@@@@@RECEIVE######\n");
 
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
+
+	rxts = current_timestamp();
+
     //LoRa_stop_receive(modem);//manually stoping RxCont mode
 	int CRCError = rx->CRC;
     if (CRCError){
@@ -44,8 +63,10 @@ void rx_f(rxData *rx){
 
 		Reply reply = *(Reply*)(rx->buf);
 
-		printf("Received ack: %d  needReboot: %d\n\n", reply.ack_, reply.needReboot_);
-
+		printf("Received ack: %d  needReboot: %d\n", reply.ack_, reply.needReboot_);
+		std::cout<<"Send Ts:"<<txts<<"  Receive Ts:"<<rxts<<std::endl;
+		std::cout<<"Response Time:"<<rxts-txts<<" miliseconds"<<std::endl<<std::endl;
+	
 		if ( reply.needReboot_){
 				printf("Reboot reqested..\n\n");
 					//system("sudo reboot");
