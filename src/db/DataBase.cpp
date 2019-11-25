@@ -15,13 +15,13 @@
 
 DataBase::DataBase() 
 {
-	logfd_ = open("../../server.log",O_RDWR | O_APPEND | O_CREAT, S_IRUSR| S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH| S_IWOTH);
+	//logfd_ = open("../../server.log",O_RDWR | O_APPEND | O_CREAT, S_IRUSR| S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH| S_IWOTH);
 }
 
 
 DataBase::~DataBase() {
-		std::cout<<"DTOR..."<<std::endl;
-		close(logfd_);
+		//std::cout<<"DTOR..."<<std::endl;
+		//close(logfd_);
 }
 
 
@@ -111,14 +111,14 @@ void DataBase::showDataBaseStatus(){
 							std::string{"\n--------------------------------------\n"};
 
 	std::cout<<logstart;
-	int length = logstart.length();
+/*	int length = logstart.length();
 	char buf[1024];
 	memset(buf, 0, sizeof(char)*1024);
 
 	memcpy(buf, logstart.c_str(), sizeof(char)*length+1);
 
 	write(logfd_, buf, sizeof(char)*length+1);
-
+*/
 //	std::cout<<"--------------------------------------"<<std::endl;
 //	std::cout<<"| mac               | status | r cnt |"<<std::endl;
 //	std::cout<<"--------------------------------------"<<std::endl;
@@ -131,14 +131,14 @@ void DataBase::showDataBaseStatus(){
 	<<std::get<count>(item.second)<<" | "<<std::endl;
 	std::cout<<"--------------------------------------"<<std::endl;
 		
-		std::string line = "| "+item.first+" | "+stringDic(std::get<status>(item.second))+
+/*		std::string line = "| "+item.first+" | "+stringDic(std::get<status>(item.second))+
 	" |     "+std::to_string(std::get<count>(item.second))+" | \n--------------------------------------\n";
 
 	
 		int line_length = line.length();
 		memcpy(buf, line.c_str(), sizeof(char)* line_length+1);
 
-		write(logfd_, buf, sizeof(char)*line_length+1);
+		write(logfd_, buf, sizeof(char)*line_length+1);*/
 	} 
 
 

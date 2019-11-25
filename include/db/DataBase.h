@@ -18,7 +18,7 @@ private:
 	// no public CTOR
 	DataBase();
 
-	int logfd_;
+//	int logfd_;
 public:
 	virtual ~DataBase();
 

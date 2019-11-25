@@ -29,29 +29,20 @@ long long rxts = 0;
 int count = 0;
 void tx_f(txData *tx){
     LoRa_ctl *modem = (LoRa_ctl *)(tx->userPtr);
-    //printf("tx done#########;\t");
-    //printf("sent string: \"%s\"\n\n", tx->buf);//Data we've sent
     Data data = *(Data*)(tx->buf);
-	//printf("Data sequence number: %d\n", data.count_);
-
-	//printf("sent string: \"%d\"\n\n", atoi(tx->buf));//Data we've sent
    
-	txts = current_timestamp();	
+	//txts = current_timestamp();	
 
-    //LoRa_receive(modem);
-	//printf("BEFORE LORA_RECEIVE!!\n");
 	LoRa_receive(modem);
-	//printf("AFTER LORA_RECEIVE!!\n");
 }
 
 
 
 void rx_f(rxData *rx){
-	//printf("@@@@@@@@@@@@@@RECEIVE######\n");
 
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
 
-	rxts = current_timestamp();
+	//rxts = current_timestamp();
 
     //LoRa_stop_receive(modem);//manually stoping RxCont mode
 	int CRCError = rx->CRC;
@@ -63,9 +54,9 @@ void rx_f(rxData *rx){
 
 		Reply reply = *(Reply*)(rx->buf);
 
-		printf("Received ack: %d  needReboot: %d\n", reply.ack_, reply.needReboot_);
-		std::cout<<"Send Ts:"<<txts<<"  Receive Ts:"<<rxts<<std::endl;
-		std::cout<<"Response Time:"<<rxts-txts<<" miliseconds"<<std::endl<<std::endl;
+		printf("Received ack: %d  needReboot: %d\n\n", reply.ack_, reply.needReboot_);
+		//std::cout<<"Send Ts:"<<txts<<"  Receive Ts:"<<rxts<<std::endl;
+		//std::cout<<"Response Time:"<<rxts-txts<<" miliseconds"<<std::endl<<std::endl;
 	
 		if ( reply.needReboot_){
 				printf("Reboot reqested..\n\n");
