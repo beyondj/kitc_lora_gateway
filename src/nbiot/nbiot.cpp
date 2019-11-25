@@ -25,9 +25,10 @@ int connectToNbIotServer(){
 			return EXIT_FAILURE;                                                           
 	}                                                                                  
 
+	//64:ff9b::7535:580E
 	/* Connect to server running on localhost */                                       
 	server_addr.sin6_family = AF_INET6;                                                
-	inet_pton(AF_INET6, "64:ff9b::3a78:665a", &server_addr.sin6_addr);                 
+	inet_pton(AF_INET6, "64:ff9b::7535:580E"/*"64:ff9b::3a78:665a"*/, &server_addr.sin6_addr);                 
 	server_addr.sin6_port = htons(SERVER_PORT);                                        
 
 		/* Try to do TCP handshake with server */                                          

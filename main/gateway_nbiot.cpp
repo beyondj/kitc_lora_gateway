@@ -46,18 +46,18 @@ void _processDBbyStatus(const std::string& mac){
 }
 
 int _processReplybyValidity(bool validity, const std::string& mac){
+	DataBase& db = DataBase::getInstance();
 	if(validity == 0){
-		errorCount++;
+		db.increaseErrorCount(mac);
 			
-		if (errorCount > 5){
-			DataBase& db = DataBase::getInstance();
+		if (db.getErrorCount(mac) > 5){
 			db.reboot(mac);
 			return 1;
 		}
 	}
 
 	else{
-		errorCount = 0;
+		db.resetErrorCount(mac);
 	}
 
 	return 0;

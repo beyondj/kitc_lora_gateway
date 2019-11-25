@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <stdbool.h>
 #define  BUFF_SIZE   1024
-
+#define  PORT		 3200
 
 typedef struct _Sensor_Value{
 	bool validity_;
@@ -48,7 +48,7 @@ int   main( void)
 
 		memset( &server_addr, 0, sizeof( server_addr));
 		server_addr.sin_family     = AF_INET;
-		server_addr.sin_port       = htons(3200);
+		server_addr.sin_port       = htons(PORT);
 		server_addr.sin_addr.s_addr= htonl( INADDR_ANY);
 
 		int opt = 1;
