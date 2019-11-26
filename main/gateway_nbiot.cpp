@@ -20,7 +20,7 @@ void tx_f(txData *tx){
     //printf("tx done;\t");
 
 	Reply* reply =(Reply*) tx->buf;
-	printf("Sending ack: %d  needReboot: %d\n\n", reply->ack_, reply->needReboot_);
+	printf("#######Sending to Sensor ack: %d  NeedReboot: %d\n\n\n", reply->ack_, reply->needReboot_);
    // printf("sent reply ack = %d, needReboot = %d\n\n", reply->ack_, reply->needReboot_);//Data we've sent
 
 	LoRa_receive(modem);
@@ -90,7 +90,8 @@ void rx_f(rxData *rx){
 		memset(&nbData_ , 0, sizeof(NB_Data));
 
 		nbData_.sensorData_ = *(Data*)(rx->buf);
-			
+	
+
 		std::string mac{nbData_.sensorData_.mac_};
 
 		//process db related things and prepare for the reply
@@ -125,13 +126,14 @@ void rx_f(rxData *rx){
 	
 		printf("------------------------Sensor------------------------\n");
 		printf("[%s]\tReceived seq: %d\nValidity : %d  Huminity: %.1f  Temperature: %.1f\n",
-		nbData_.sensorData_.mac_,nbData_.sensorData_.sensor_.validity_,nbData_.sensorData_.sensor_.humin_,
+		nbData_.sensorData_.mac_  , nbData_.sensorData_.count_  ,nbData_.sensorData_.sensor_.validity_,  nbData_.sensorData_.sensor_.humin_,
 		nbData_.sensorData_.sensor_.temper_);
 		printf("-----------------------Gateway-------------------------\n");
-		printf("[%s]\trssi_: %d\nStatus: %d RebootCount: %d NeedReboot: %d",
+		printf("[%s]\trssi_: %d\nStatus: %d RebootCount: %d NeedReboot: %d\n",
 		nbData_.gatewayData_.mac_, nbData_.gatewayData_.rssi_, nbData_.gatewayData_.status_,
 		nbData_.gatewayData_.rcount_, nbData_.gatewayData_.needReboot_);
-
+		
+		printf("-------------------------------------------------------\n");
 	
 	
 	}
@@ -139,7 +141,6 @@ void rx_f(rxData *rx){
 
 	
 	
-	printf("RSSI: %d\n", rx->RSSI);
     //printf("SNR: %f\n\n", rx->SNR);
    
    memcpy(modem->tx.data.buf,&reply, sizeof(Reply));
@@ -183,7 +184,7 @@ int main(){
 	sleep(1);
 
 
-	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::best);
+	lora_initiate(modem,rx_f,rxbuf,tx_f,txbuf, Bandwidth::good);
 
     LoRa_begin(&modem);
     LoRa_receive(&modem);
