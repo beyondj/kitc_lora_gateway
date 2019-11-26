@@ -8,6 +8,8 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
+#include <nbiot/nbiot.h>
+#include <mac/mac.h>
 
 #define status 0
 #define count 1
@@ -15,6 +17,11 @@
 
 DataBase::DataBase() 
 {
+	memset(mac_, 0, sizeof(char)*18);
+	bool ret = getMacAddress(mac_);
+	if (ret){
+		printf("gateway mac is weired....\n");
+	}
 	//logfd_ = open("../../server.log",O_RDWR | O_APPEND | O_CREAT, S_IRUSR| S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH| S_IWOTH);
 }
 
@@ -155,4 +162,28 @@ void DataBase::resetErrorCount(const std::string& mac){
 int DataBase::getErrorCount(const std::string& mac){
 	return macVCount_.at(mac);
 }
+
+int DataBase::statusToint(const Status& statuss){
+	if (statuss == Status::Newby) {
+		return 0;
+	}
+	if (statuss == Status::Good){
+		return 1;
+	}
+	
+	return 2;
+}
+
+void DataBase::setInfo(const std::string& mac, GatewayData& gatewayData){
+	auto search = dbInfo_.find(mac);
+	if(search == dbInfo_.end()){
+		printf("no correspongding mac information in DB\n");
+	}
+	else{
+		gatewayData.status_ = statusToint(std::get<status>(search->second));
+		gatewayData.rcount_ = std::get<count>(search->second);
+		memcpy(gatewayData.mac_, mac_, sizeof(char)*18);
+	}
+}
+
 

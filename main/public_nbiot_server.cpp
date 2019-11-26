@@ -9,18 +9,7 @@
 #define  BUFF_SIZE   1024
 #define  PORT		 3200
 
-typedef struct _Sensor_Value{
-	bool validity_;
-	float humin_;
-	float temper_;
-}SensorValue;
-
-typedef struct Data_{
-	char mac_[18];
-	int count_;
-	SensorValue sensor_;
-}Data;
-
+#include <nbiot/nbiot.h>
 
 
 
@@ -78,10 +67,24 @@ int   main( void)
 				}
 
 			while(1){
-					Data data;
-					read ( client_socket, &data, sizeof(Data));
-					 printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f\n",
-					  data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+					NB_Data  nbData_;
+					memset(&nbData_, 0, sizeof(NB_Data));
+					read ( client_socket, &nbData_, sizeof(NB_Data));
+					 //printf("Mac:%s \nReceived count: %d  validity_ :%d   humiditiy: %.1f  Temperatur: %.1f\n",
+					 // data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+
+					  
+					 printf("------------------------Sensor------------------------\n");
+					 printf("[%s]\tReceived seq: %d\nValidity : %d  Huminity: %.1f  Temperature: %.1f\n",
+									 nbData_.sensorData_.mac_,nbData_.sensorData_.sensor_.validity_,nbData_.sensorData_.sensor_.humin_,
+									 nbData_.sensorData_.sensor_.temper_);
+					 printf("-----------------------Gateway-------------------------\n");
+					 printf("[%s]\trssi_: %d\nStatus: %d RebootCount: %d NeedReboot: %d",
+									 nbData_.gatewayData_.mac_, nbData_.gatewayData_.rssi_, nbData_.gatewayData_.status_,
+									 nbData_.gatewayData_.rcount_, nbData_.gatewayData_.needReboot_);
+
+					printf("\n");
+																	  
 
 					//printf( "receive: %s\n", buff_rcv);
 				}

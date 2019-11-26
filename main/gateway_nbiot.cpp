@@ -63,6 +63,11 @@ int _processReplybyValidity(bool validity, const std::string& mac){
 	return 0;
 }
 
+void _setStatusandRcount(const std::string& mac, GatewayData& gatewayData){
+	DataBase& db = DataBase::getInstance();
+	db.setInfo(mac,gatewayData);
+}
+
 void rx_f(rxData *rx){
     LoRa_ctl *modem = (LoRa_ctl *)(rx->userPtr);
     LoRa_stop_receive(modem);//manually stoping RxCont mode
@@ -72,6 +77,7 @@ void rx_f(rxData *rx){
 	memset(&reply, 0, sizeof(Reply));
 
 
+	int RSSI = rx->RSSI;
 	//LoRa_end(modem);
 	//lora communication error... do nothing..
 	if (rx->CRC){
@@ -80,20 +86,54 @@ void rx_f(rxData *rx){
 	}
 
 	else {
-		reply.ack_ = data.count_;
+		NB_Data nbData_;
+		memset(&nbData_ , 0, sizeof(NB_Data));
+
+		nbData_.sensorData_ = *(Data*)(rx->buf);
+			
+		std::string mac{nbData_.sensorData_.mac_};
+
+		//process db related things and prepare for the reply
+		_processDBbyStatus(mac);
+		reply.needReboot_ = _processReplybyValidity(nbData_.sensorData_.sensor_.validity_, mac);
+		reply.ack_ = nbData_.sensorData_.count_;
+		
+		//fill the mac_, status_, rcount_
+		_setStatusandRcount(mac, nbData_.gatewayData_);
+
+		//fill the others
+		nbData_.gatewayData_.rssi_ = RSSI;
+		nbData_.gatewayData_.needReboot_ = reply.needReboot_;
+
+
+
+
+
+		//reply.ack_ = data.count_;
 	
 
-		Data data = *(Data*)(rx->buf);
-		std::string mac{data.mac_};
+		//Data data = *(Data*)(rx->buf);
+		//std::string mac{data.mac_};
 
-		Pipe::getInstance().write(data);
+		Pipe::getInstance().write(nbData_);
 
-	    _processDBbyStatus(mac);
-		reply.needReboot_ = _processReplybyValidity(data.sensor_.validity_, mac);
+	    //_processDBbyStatus(mac);
+		//reply.needReboot_ = _processReplybyValidity(data.sensor_.validity_, mac);
 
+		//printf("[%s]\tReceived seq: %d\nValidity : %d  Huminity: %.1f  Temperature: %.1f\n",
+		//data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+	
+		printf("------------------------Sensor------------------------\n");
 		printf("[%s]\tReceived seq: %d\nValidity : %d  Huminity: %.1f  Temperature: %.1f\n",
-		data.mac_,data.count_, data.sensor_.validity_, data.sensor_.humin_, data.sensor_.temper_);
+		nbData_.sensorData_.mac_,nbData_.sensorData_.sensor_.validity_,nbData_.sensorData_.sensor_.humin_,
+		nbData_.sensorData_.sensor_.temper_);
+		printf("-----------------------Gateway-------------------------\n");
+		printf("[%s]\trssi_: %d\nStatus: %d RebootCount: %d NeedReboot: %d",
+		nbData_.gatewayData_.mac_, nbData_.gatewayData_.rssi_, nbData_.gatewayData_.status_,
+		nbData_.gatewayData_.rcount_, nbData_.gatewayData_.needReboot_);
 
+	
+	
 	}
 	
 
@@ -121,7 +161,7 @@ void* becomeNBIotClient(void* arg){
 	int client_socket = connectToNbIotServer(); 
 	
 	while(Pipe::getInstance().read()){
-		write(client_socket, Pipe::getInstance().getBuf() ,sizeof(Data) );
+		write(client_socket, Pipe::getInstance().getBuf() ,sizeof(NB_Data) );
 	}
 
 }

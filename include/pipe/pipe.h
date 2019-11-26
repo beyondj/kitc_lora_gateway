@@ -3,6 +3,7 @@
 
 
 #include <sensor/sensor.h>
+#include <nbiot/nbiot.h>
 
 class Pipe{
 private:
@@ -17,7 +18,7 @@ public:
 
 	static Pipe& getInstance();
 	
-	void write(const Data&);
+	void write(const NB_Data&);
 	int read();
 	char* getBuf();
 	

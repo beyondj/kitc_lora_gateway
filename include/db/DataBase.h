@@ -3,6 +3,7 @@
 
 #include <map>
 #include <utility>
+#include <nbiot/nbiot.h>
 
 enum class Status{
 	Newby,
@@ -12,6 +13,7 @@ enum class Status{
 
 class DataBase{
 private:
+	char mac_[18];
 	std::map<std::string, std::pair<Status, int>> dbInfo_;
 	std::map<std::string, int> macVCount_;
 	static DataBase* instance_;
@@ -33,6 +35,9 @@ public:
 	void increaseErrorCount(const std::string&);
 	void resetErrorCount(const std::string&);
 	int getErrorCount(const std::string&);
+	void setInfo(const std::string&, GatewayData&);
+	int statusToint(const Status&);
+
 };
 
 

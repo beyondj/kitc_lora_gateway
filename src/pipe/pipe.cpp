@@ -1,6 +1,7 @@
 #include <pipe/pipe.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <nbiot/nbiot.h>
 
 #define p_read  0
 #define p_write 1
@@ -32,12 +33,12 @@ Pipe& Pipe::getInstance(){
 }
 
 
-void Pipe::write(const Data& data){
-	::write(pipeFd_[p_write], &data, sizeof(Data));
+void Pipe::write(const NB_Data& data){
+	::write(pipeFd_[p_write], &data, sizeof(NB_Data));
 
 }
 int Pipe::read(){
-	return ::read(pipeFd_[p_read], buf_, sizeof(Data));
+	return ::read(pipeFd_[p_read], buf_, sizeof(NB_Data));
 }
 
 char* Pipe::getBuf(){
