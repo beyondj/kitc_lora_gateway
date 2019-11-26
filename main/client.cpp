@@ -54,7 +54,7 @@ void rx_f(rxData *rx){
 
 		Reply reply = *(Reply*)(rx->buf);
 
-		printf("Received ack: %d  needReboot: %d\n\n", reply.ack_, reply.needReboot_);
+		printf("Received ack: %d  NeedReboot: %d\n\n", reply.ack_, reply.needReboot_);
 		//std::cout<<"Send Ts:"<<txts<<"  Receive Ts:"<<rxts<<std::endl;
 		//std::cout<<"Response Time:"<<rxts-txts<<" miliseconds"<<std::endl<<std::endl;
 	
