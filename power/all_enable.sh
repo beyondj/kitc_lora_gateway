@@ -1,5 +1,5 @@
 # cpu
-sudo sed -i 's/maxcpus=2 //' /boot/cmdline.txt
+sudo sed -i 's/maxcpus=2 //g' /boot/cmdline.txt
 sudo sed -i '/arm_freq=700/d' /boot/config.txt
 
 # audio
