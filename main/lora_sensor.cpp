@@ -96,7 +96,7 @@ int main(){
   
 //	LoRa_send(&modem);
 	while(1){
-	    sleep(5);
+	    sleep(20);
 //	    LoRa_receive(&modem);
 		data.count_++;
 		data.sensor_ = getSensorValue();
