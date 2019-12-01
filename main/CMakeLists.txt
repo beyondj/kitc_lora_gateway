@@ -16,3 +16,8 @@ add_dependencies(mimicErrorclient_run dbapi loraapi)
 
 add_executable(public_server_run public_server.cpp)
 target_link_libraries(public_server_run  loraapi macapi sensorapi)
+
+
+add_executable(test_hybrid_gateway_run test_hybrid_gateway.cpp)
+target_link_libraries(test_hybrid_gateway_run macapi dbapi loraapi epollwifiapi nbiotapi pipeapi)
+add_dependencies(test_hybrid_gateway_run dbapi loraapi)
